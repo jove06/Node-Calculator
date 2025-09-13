@@ -6,48 +6,45 @@
 // After a valid number is entered, ask the user, "Please enter the second number". Perform the same error handling as before
 // Then create a function to perform the proper math operation and print the result as: "The result is: X" where "X" is the actual result
 
-var rs = require("readline-sync");
+const rs = require("readline-sync");
+const operatorsConfig = {
+  "+": (a, b) => a + b,
+  "-": (a, b) => a - b,
+  "*": (a, b) => a * b,
+  "/": (a, b) => a / b,
+  "%": (a, b) => a % b,
+};
 
 
-function getOp() {
-  let options = ["/", "*", "-", "+"];
-  let userOp = rs.question(
-    `What operation would you like to perform? /, +, -, * \n`
-  );
-  
-  while (!options.includes(userOp)) {
-    console.log("That is not a valid operation");
-    userOp = rs.question(
-      `What operation would you like to perform? /, +, -, * \n`
-    );
-  }
-  return userOp;
+function getOperation(options) {
+  return rs.question(`What operation would you like to perform? ${options.join(", ")} \n`, 
+  {
+    limit: options, 
+    limitMessage: "That is not a valid operation!"
+  });
 }
 
-function getNum() {
-  let num1 = rs.questionInt("Enter your first number: ");
-  let num2 = rs.questionInt("Enter your second number: ");
-  return [num1, num2];
+function getANumber(order){
+  return rs.questionInt(`Please enter the ${order} number: `, {
+    limitMessage: "This is not a number!"
+  });
 }
 
-function calculate(a, b, op) {
-  if (op === "/") {
-    return a / b;
-  } else if (op === "*") {
-    return a * b;
-  } else if (op === "-") {
-    return a - b;
-  } else if (op === "+") {
-    return a + b;
-  }
+function getNumbers(){
+  return ["first", "second"].map(getANumber);
 }
 
-function  main() {
-  let userOp = getOp();
-  let numbers = getNum();
-  let result = calculate(numbers[0], numbers[1], userOp);
+function calculate(a, b, op, config) {
+  return config[op](a, b);
+}
+
+function  main(config) {
+  const arrOperators = Object.keys(config);
+  const userOp = getOperation(arrOperators);
+  const [firstNumber, secondNumber] = getNumbers();
+  const result = calculate(firstNumber, secondNumber, userOp, config);
   console.log(`The result is: ${result}`);
 }
 
-main();
+main(operatorsConfig);
 
